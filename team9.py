@@ -1,34 +1,56 @@
+from __future__ import print_function
+import random
+
 ####
 # Each team's file must define four tokens:
 #     team_name: a string
-#     strategy_name: a string
-#     strategy_description: a string
+#     strategy_name: Trust points algorithm
+#     strategy_description: Assigns trust points to make decisions off of
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = 'The name the team gives to itself' # Only 10 chars displayed.
-strategy_name = 'The name the team gives to this strategy'
-strategy_description = 'How does this strategy decide?'
-    
-def move(my_history, their_history, my_score, their_score):
-    ''' Arguments accepted: my_history, their_history are strings.
-    my_score, their_score are ints.
-    
-    Make my move.
-    Returns 'c' or 'b'. 
-    '''
+team_name = 'OscarPonce' # Only 10 chars displayed.
+strategy_name = 'Trust Move'
+strategy_description = """Assigns variable to keep track of trust and makes 
+decisions based off of that"""
 
-    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
-    # their_history: a string of the same length as history, possibly empty. 
-    # The first round between these two players is my_history[0] and their_history[0].
-    # The most recent round is my_history[-1] and their_history[-1].
-    
-    # Analyze my_history and their_history and/or my_score and their_score.
-    # Decide whether to return 'c' or 'b'.
-    
-    return 'c'
+# Trust move algortihm that determines based off of variable
+def trustmove(their_history):
+    points = 100 # Assigned to 100
+    their_history = 'b' #Assigned as betray
+    if their_history == 'b': #Tells program what to do if betray
+        points -= 20
+        if points > 100:
+            return 'c'
+        if points < 100 or points == 100:
+            return 'b'
+    if their_history == 'c': #Tells program what to do if collude
+        points += 10
+        if points > 100:
+            return 'c'
+        if points < 100 or points == 100:
+            return 'b'
 
+# Most-recent algorithm, will only make a decision based on the other prisoner's previous move
+def move2(my_history, their_history, my_score, their_score):
+    if their_history[-1]=='c':
+        return 'b' # betray if they colluded on the last turn
+    if their_history[-1]=='c':
+        return 'c' # collude if they betrayed on the last turn
+
+# Points to possibility algorithm, will add or decuct points from the possibility to collude based on other player's choice
+def move3(my_history, their_history, my_score, their_score, n):
+    n = 100 # initial range
+    n1 = random.randint(0, n) # range changes based on betrayals and collusions
+    if n1 > 50:
+        return 'c'
+    if n1 < 50:
+        if their_history[-1]=='c':
+            n = n + 10 # add points to possibility to collude
+        if their_history[-1]=='b':
+            n = n - 10 # deduct points from possibility to collude
     
+
 def test_move(my_history, their_history, my_score, their_score, result):
     '''calls move(my_history, their_history, my_score, their_score)
     from this module. Prints error if return value != result.
@@ -53,7 +75,7 @@ if __name__ == '__main__':
               my_score=0,
               their_score=0,
               result='b'):
-         print 'Test passed'
+         print('Test passed')
      # Test 2: Continue betraying if they collude despite being betrayed.
     test_move(my_history='bbb',
               their_history='ccc', 
